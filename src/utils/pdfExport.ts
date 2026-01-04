@@ -1,4 +1,4 @@
-import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb, PDFTextField, PDFForm } from 'pdf-lib';
+import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb, PDFForm } from 'pdf-lib';
 import type { SF330PartIData, SF330PartIIData, SF254Data, SF255Data, SF252Data, UnifiedFormData } from '@/types';
 
 // PDF dimensions and styling constants
@@ -6,9 +6,7 @@ const PAGE_WIDTH = 612; // Letter size width in points
 const PAGE_HEIGHT = 792; // Letter size height in points
 const MARGIN = 50;
 const FIELD_HEIGHT = 20;
-const FIELD_PADDING = 5;
 const SECTION_SPACING = 25;
-const LINE_HEIGHT = 14;
 
 interface FieldConfig {
   name: string;
@@ -59,7 +57,7 @@ function addTextField(
 // Helper function to add a section header
 function addSectionHeader(
   page: PDFPage,
-  font: PDFFont,
+  _font: PDFFont,
   boldFont: PDFFont,
   title: string,
   y: number
@@ -1077,7 +1075,10 @@ export async function exportFormToPDF(
       throw new Error(`Unknown form type: ${formType}`);
   }
 
-  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  // Convert Uint8Array to ArrayBuffer for Blob compatibility
+  const arrayBuffer = new ArrayBuffer(pdfBytes.length);
+  new Uint8Array(arrayBuffer).set(pdfBytes);
+  const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
   return { blob, filename };
 }
 
