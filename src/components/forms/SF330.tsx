@@ -66,7 +66,6 @@ interface CollapsibleSectionProps {
 }
 
 function CollapsibleSection({
-  id,
   title,
   subtitle,
   icon,

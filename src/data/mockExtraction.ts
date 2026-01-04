@@ -1,4 +1,4 @@
-import type { SF330PartIData, SF330PartIIData, SF252Data, EmployeeByDiscipline, KeyPersonnel } from '@/types';
+import type { SF330PartIData, SF330PartIIData, SF252Data, EmployeeByDiscipline, FormDataType } from '@/types';
 
 // Simulated extraction responses based on file type
 export interface ExtractionResult {
@@ -149,10 +149,10 @@ export async function simulateExtraction(fileName: string): Promise<ExtractionRe
   }
 }
 
-// Get the target form type based on extraction content
+// Get the target form data type based on extraction content
 export function getTargetFormType(
   data: Partial<SF330PartIData | SF330PartIIData | SF252Data>
-): 'SF330_PART_I' | 'SF330_PART_II' | 'SF252' {
+): FormDataType {
   if ('contractAmount' in data || 'deliveryOrderNumber' in data) {
     return 'SF252';
   }

@@ -2,23 +2,9 @@ import { FileText, FileSignature, Loader2 } from 'lucide-react';
 import { useDashboard } from '@/context/DashboardContext';
 import { SF330 } from './SF330';
 import { SF252 } from './SF252';
-import type { FormType } from '@/types';
 
 const formMeta: Record<string, { title: string; subtitle: string; icon: typeof FileText; gradient: string }> = {
   SF330: {
-    title: 'SF330',
-    subtitle: 'Architect-Engineer Qualifications',
-    icon: FileText,
-    gradient: 'from-violet-500 to-purple-600',
-  },
-  // Legacy form types for backwards compatibility
-  SF330_PART_I: {
-    title: 'SF330',
-    subtitle: 'Architect-Engineer Qualifications',
-    icon: FileText,
-    gradient: 'from-violet-500 to-purple-600',
-  },
-  SF330_PART_II: {
     title: 'SF330',
     subtitle: 'Architect-Engineer Qualifications',
     icon: FileText,
@@ -33,20 +19,10 @@ const formMeta: Record<string, { title: string; subtitle: string; icon: typeof F
 };
 
 export function FormPreview() {
-  const { state, setActiveForm } = useDashboard();
+  const { state } = useDashboard();
   const { activeForm, isLoading } = state;
   
-  // Handle legacy form types - redirect to combined SF330
-  const normalizedForm = activeForm === 'SF330_PART_I' || activeForm === 'SF330_PART_II' 
-    ? 'SF330' 
-    : activeForm;
-  
-  // Update state if we have a legacy form type
-  if (activeForm !== normalizedForm) {
-    setActiveForm(normalizedForm as FormType);
-  }
-  
-  const meta = formMeta[normalizedForm] || formMeta.SF330;
+  const meta = formMeta[activeForm] || formMeta.SF330;
   const Icon = meta.icon;
 
   return (
@@ -73,8 +49,8 @@ export function FormPreview() {
 
       {/* Form Content */}
       <div className="flex-1 overflow-y-auto">
-        {(normalizedForm === 'SF330') && <SF330 />}
-        {normalizedForm === 'SF252' && <SF252 />}
+        {activeForm === 'SF330' && <SF330 />}
+        {activeForm === 'SF252' && <SF252 />}
       </div>
     </div>
   );

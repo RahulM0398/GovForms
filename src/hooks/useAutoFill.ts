@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useDashboard } from '@/context/DashboardContext';
 import { simulateExtraction, getTargetFormType, type ExtractionResult } from '@/data/mockExtraction';
-import type { FormType } from '@/types';
+import type { FormDataType } from '@/types';
 
 interface AutoFillState {
   isExtracting: boolean;
@@ -68,7 +68,7 @@ export function useAutoFill() {
   );
 
   const extractAndFillForForm = useCallback(
-    async (file: File, targetForm: FormType): Promise<ExtractionResult | null> => {
+    async (file: File, targetForm: FormDataType): Promise<ExtractionResult | null> => {
       setAutoFillState((prev) => ({
         ...prev,
         isExtracting: true,

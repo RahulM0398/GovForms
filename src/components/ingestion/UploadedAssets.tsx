@@ -1,4 +1,4 @@
-import { FileText, User, Building2, Award, File, X, Inbox } from 'lucide-react';
+import { User, Building2, Award, File, X, Inbox } from 'lucide-react';
 import { useDashboard } from '@/context/DashboardContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';

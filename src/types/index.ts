@@ -1,5 +1,8 @@
-// Form types
+// Form types - User-facing form selection
 export type FormType = 'SF330' | 'SF252';
+
+// Internal form data types - Used for targeting specific form data sections
+export type FormDataType = 'SF330_PART_I' | 'SF330_PART_II' | 'SF252';
 
 // Project types
 export interface Project {
@@ -215,11 +218,11 @@ export type DashboardAction =
   | { type: 'SET_ACTIVE_PROJECT'; payload: string | null }
   | { type: 'ADD_ASSET'; payload: UploadedAsset }
   | { type: 'REMOVE_ASSET'; payload: string }
-  | { type: 'UPDATE_FORM_FIELD'; payload: { formType: FormType; field: string; value: unknown } }
+  | { type: 'UPDATE_FORM_FIELD'; payload: { formType: FormDataType; field: string; value: unknown } }
   | { type: 'UPDATE_SF330_PART_I'; payload: Partial<SF330PartIData> }
   | { type: 'UPDATE_SF330_PART_II'; payload: Partial<SF330PartIIData> }
   | { type: 'UPDATE_SF252'; payload: Partial<SF252Data> }
-  | { type: 'AUTO_FILL_FROM_EXTRACTION'; payload: { formType: FormType; data: Partial<SF330PartIData | SF330PartIIData | SF252Data> } }
+  | { type: 'AUTO_FILL_FROM_EXTRACTION'; payload: { formType: FormDataType; data: Partial<SF330PartIData | SF330PartIIData | SF252Data> } }
   | { type: 'LOAD_PERSISTED_STATE'; payload: DashboardState }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'ADD_EMPLOYEE_BY_DISCIPLINE'; payload: EmployeeByDiscipline }
