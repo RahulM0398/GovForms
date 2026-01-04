@@ -140,7 +140,7 @@ const SF252_FIELDS: { field: keyof SF252Data; label: string; required: boolean }
   { field: 'obligatedAmount', label: 'Obligated Amount', required: false },
 ];
 
-function calculateProgress<T extends Record<string, unknown>>(
+function calculateProgress<T>(
   data: T | undefined | null,
   fields: { field: keyof T; label: string; required: boolean }[]
 ): FormProgress {
@@ -166,7 +166,7 @@ function calculateProgress<T extends Record<string, unknown>>(
     field: String(f.field),
     label: f.label,
     required: f.required,
-    filled: isFilled(data[f.field]),
+    filled: isFilled((data as Record<string, unknown>)[String(f.field)]),
   }));
 
   const requiredFields = allFields.filter((f) => f.required);
