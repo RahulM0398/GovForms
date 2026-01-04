@@ -1,4 +1,5 @@
-import { FileText, FileSignature, FileSpreadsheet, FileBadge, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { FileText, FileSignature, FileSpreadsheet, FileBadge, Loader2, FileDown, CheckCircle2 } from 'lucide-react';
 import { useDashboard } from '@/context/DashboardContext';
 import { SF330 } from './SF330';
 import { SF254 } from './SF254';
@@ -6,6 +7,8 @@ import { SF255 } from './SF255';
 import { SF252 } from './SF252';
 import { FormProgressBar } from './FormProgressBar';
 import { getFormProgress } from '@/utils/formProgress';
+import { exportFormToPDF, downloadPDF } from '@/utils/pdfExport';
+import { Button } from '@/components/ui/button';
 
 const formMeta: Record<string, { title: string; subtitle: string; icon: typeof FileText; gradient: string }> = {
   SF330: {
@@ -37,12 +40,31 @@ const formMeta: Record<string, { title: string; subtitle: string; icon: typeof F
 export function FormPreview() {
   const { state } = useDashboard();
   const { activeForm, isLoading, formData } = state;
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportSuccess, setExportSuccess] = useState(false);
   
   const meta = formMeta[activeForm] || formMeta.SF330;
   const Icon = meta.icon;
   
   // Calculate progress for current form
   const progress = getFormProgress(activeForm, formData);
+
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    setExportSuccess(false);
+    
+    try {
+      const { blob, filename } = await exportFormToPDF(activeForm, formData);
+      downloadPDF(blob, filename);
+      setExportSuccess(true);
+      setTimeout(() => setExportSuccess(false), 3000);
+    } catch (error) {
+      console.error('Failed to export PDF:', error);
+      alert('Failed to export PDF. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-[var(--color-surface)]">
@@ -58,12 +80,37 @@ export function FormPreview() {
           </div>
         </div>
 
-        {isLoading && (
-          <div className="flex items-center gap-2 rounded-full bg-[var(--color-primary)]/10 px-3 py-1.5 text-xs font-medium text-[var(--color-primary)]">
-            <Loader2 className="h-3 w-3 animate-spin" />
-            <span>Extracting...</span>
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {isLoading && (
+            <div className="flex items-center gap-2 rounded-full bg-[var(--color-primary)]/10 px-3 py-1.5 text-xs font-medium text-[var(--color-primary)]">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              <span>Extracting...</span>
+            </div>
+          )}
+
+          {exportSuccess && (
+            <div className="flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-medium text-emerald-700">
+              <CheckCircle2 className="h-3 w-3" />
+              <span>Exported!</span>
+            </div>
+          )}
+
+          {/* Export Button */}
+          <Button 
+            variant="outline" 
+            size="sm"
+            disabled={isExporting}
+            onClick={handleExportPDF}
+            className="gap-2 border-[var(--color-border)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] hover:border-[var(--color-primary)]"
+          >
+            {isExporting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <FileDown className="h-4 w-4" />
+            )}
+            Export PDF
+          </Button>
+        </div>
       </div>
 
       {/* Progress Bar */}
