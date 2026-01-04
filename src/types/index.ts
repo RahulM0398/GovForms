@@ -1,8 +1,8 @@
 // Form types - User-facing form selection
-export type FormType = 'SF330' | 'SF252';
+export type FormType = 'SF330' | 'SF254' | 'SF255' | 'SF252';
 
 // Internal form data types - Used for targeting specific form data sections
-export type FormDataType = 'SF330_PART_I' | 'SF330_PART_II' | 'SF252';
+export type FormDataType = 'SF330_PART_I' | 'SF330_PART_II' | 'SF254' | 'SF255' | 'SF252';
 
 // Project types
 export interface Project {
@@ -192,10 +192,135 @@ export interface SF252Data {
   contractingOfficerDate: string;
 }
 
+// SF254 Data - Architect-Engineer and Related Services Questionnaire
+export interface SF254Data {
+  // Firm Information
+  firmName: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  
+  // Contact Information
+  contactName: string;
+  contactTitle: string;
+  contactPhone: string;
+  contactEmail: string;
+  
+  // Parent Company (if applicable)
+  parentCompanyName: string;
+  parentCompanyAddress: string;
+  
+  // Year Established & Personnel
+  yearEstablished: string;
+  dateSubmitted: string;
+  totalPersonnel: number;
+  personnelByDiscipline: EmployeeByDiscipline[];
+  
+  // Professional Services Capabilities
+  serviceCapabilities: ServiceCapability[];
+  
+  // Geographic Experience
+  geographicExperience: string[];
+  
+  // Profile Data
+  annualAverageRevenue: number;
+  federalWorkPercentage: number;
+  nonFederalWorkPercentage: number;
+}
+
+export interface ServiceCapability {
+  id: string;
+  code: string;
+  description: string;
+  yearsExperience: number;
+}
+
+// SF255 Data - Architect-Engineer and Related Services Questionnaire for Specific Project
+export interface SF255Data {
+  // Project Information
+  projectTitle: string;
+  projectLocation: string;
+  solicitationNumber: string;
+  
+  // Firm Information (submitting firm)
+  firmName: string;
+  firmAddress: string;
+  firmCity: string;
+  firmState: string;
+  firmZipCode: string;
+  
+  // Point of Contact
+  pocName: string;
+  pocTitle: string;
+  pocPhone: string;
+  pocEmail: string;
+  
+  // Joint Venture Partners (if applicable)
+  jointVenturePartners: JointVenturePartner[];
+  
+  // Personnel by Discipline for this project
+  personnelByDiscipline: EmployeeByDiscipline[];
+  
+  // Consultants
+  outsideConsultants: OutsideConsultant[];
+  
+  // Project Team Resumes
+  projectTeamResumes: ProjectTeamMember[];
+  
+  // Example Projects (relevant experience)
+  relevantProjects: RelevantProject[];
+  
+  // Additional Information
+  additionalInformation: string;
+  
+  // Authorized Representative
+  authorizedRepName: string;
+  authorizedRepTitle: string;
+  authorizedRepDate: string;
+  authorizedRepSignature: string;
+}
+
+export interface JointVenturePartner {
+  id: string;
+  firmName: string;
+  address: string;
+  percentParticipation: number;
+}
+
+export interface OutsideConsultant {
+  id: string;
+  firmName: string;
+  address: string;
+  services: string;
+}
+
+export interface ProjectTeamMember {
+  id: string;
+  name: string;
+  title: string;
+  projectRole: string;
+  yearsExperience: number;
+  education: string;
+  certifications: string[];
+}
+
+export interface RelevantProject {
+  id: string;
+  projectName: string;
+  projectOwner: string;
+  completionDate: string;
+  projectCost: number;
+  projectRole: string;
+  briefDescription: string;
+}
+
 // Unified Form Data
 export interface UnifiedFormData {
   sf330PartI: SF330PartIData;
   sf330PartII: SF330PartIIData;
+  sf254: SF254Data;
+  sf255: SF255Data;
   sf252: SF252Data;
 }
 
@@ -221,8 +346,10 @@ export type DashboardAction =
   | { type: 'UPDATE_FORM_FIELD'; payload: { formType: FormDataType; field: string; value: unknown } }
   | { type: 'UPDATE_SF330_PART_I'; payload: Partial<SF330PartIData> }
   | { type: 'UPDATE_SF330_PART_II'; payload: Partial<SF330PartIIData> }
+  | { type: 'UPDATE_SF254'; payload: Partial<SF254Data> }
+  | { type: 'UPDATE_SF255'; payload: Partial<SF255Data> }
   | { type: 'UPDATE_SF252'; payload: Partial<SF252Data> }
-  | { type: 'AUTO_FILL_FROM_EXTRACTION'; payload: { formType: FormDataType; data: Partial<SF330PartIData | SF330PartIIData | SF252Data> } }
+  | { type: 'AUTO_FILL_FROM_EXTRACTION'; payload: { formType: FormDataType; data: Partial<SF330PartIData | SF330PartIIData | SF254Data | SF255Data | SF252Data> } }
   | { type: 'LOAD_PERSISTED_STATE'; payload: DashboardState }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'ADD_EMPLOYEE_BY_DISCIPLINE'; payload: EmployeeByDiscipline }

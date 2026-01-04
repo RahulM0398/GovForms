@@ -1,6 +1,8 @@
-import { FileText, FileSignature, Loader2 } from 'lucide-react';
+import { FileText, FileSignature, FileSpreadsheet, FileBadge, Loader2 } from 'lucide-react';
 import { useDashboard } from '@/context/DashboardContext';
 import { SF330 } from './SF330';
+import { SF254 } from './SF254';
+import { SF255 } from './SF255';
 import { SF252 } from './SF252';
 
 const formMeta: Record<string, { title: string; subtitle: string; icon: typeof FileText; gradient: string }> = {
@@ -10,11 +12,23 @@ const formMeta: Record<string, { title: string; subtitle: string; icon: typeof F
     icon: FileText,
     gradient: 'from-violet-500 to-purple-600',
   },
+  SF254: {
+    title: 'SF254',
+    subtitle: 'A-E Services Questionnaire',
+    icon: FileSpreadsheet,
+    gradient: 'from-blue-500 to-cyan-600',
+  },
+  SF255: {
+    title: 'SF255',
+    subtitle: 'Project-Specific Questionnaire',
+    icon: FileBadge,
+    gradient: 'from-amber-500 to-orange-600',
+  },
   SF252: {
     title: 'SF252',
     subtitle: 'Architect-Engineer Contract',
     icon: FileSignature,
-    gradient: 'from-blue-500 to-indigo-600',
+    gradient: 'from-emerald-500 to-teal-600',
   },
 };
 
@@ -50,6 +64,8 @@ export function FormPreview() {
       {/* Form Content */}
       <div className="flex-1 overflow-y-auto">
         {activeForm === 'SF330' && <SF330 />}
+        {activeForm === 'SF254' && <SF254 />}
+        {activeForm === 'SF255' && <SF255 />}
         {activeForm === 'SF252' && <SF252 />}
       </div>
     </div>

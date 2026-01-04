@@ -1,74 +1,58 @@
-import { FileText, Sparkles, FileSignature } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Search, Sparkles } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { UserProfileDropdown } from './UserProfileDropdown';
 import { useDashboard } from '@/context/DashboardContext';
-import type { FormType } from '@/types';
 
-const formOptions: { value: FormType; label: string; description: string }[] = [
-  { value: 'SF330', label: 'SF330', description: 'A-E Qualifications' },
-  { value: 'SF252', label: 'SF252', description: 'A-E Contract' },
-];
+interface TopNavProps {
+  title?: string;
+  subtitle?: string;
+}
 
-export function TopNav() {
-  const { state, setActiveForm } = useDashboard();
+export function TopNav({ title, subtitle }: TopNavProps) {
+  const { state } = useDashboard();
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white border-b border-[var(--color-border)]">
-      <div className="flex h-16 items-center justify-between px-6">
-        {/* Logo and title */}
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-primary)] to-[hsl(280,60%,55%)] shadow-md">
-            <Sparkles className="h-5 w-5 text-white" />
-          </div>
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-[var(--color-border)] bg-white px-6">
+      {/* Left side - Title/Breadcrumb */}
+      <div className="flex items-center gap-4">
+        {title ? (
           <div>
-            <h1 className="text-lg font-bold text-[var(--color-foreground)] tracking-tight">VSuite</h1>
-            <p className="text-xs text-[var(--color-muted-foreground)] font-medium">Document Intelligence</p>
+            <h1 className="text-lg font-semibold text-[var(--color-foreground)]">{title}</h1>
+            {subtitle && (
+              <p className="text-xs text-[var(--color-muted-foreground)]">{subtitle}</p>
+            )}
           </div>
-        </div>
-
-        {/* Form Selector */}
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-[var(--color-muted-foreground)] font-medium hidden sm:block">Form:</span>
-          <Select
-            value={state.activeForm}
-            onValueChange={(value) => setActiveForm(value as FormType)}
-          >
-            <SelectTrigger className="w-[160px] bg-white border-[var(--color-border)] shadow-sm hover:bg-[var(--color-muted)] transition-colors">
-              <SelectValue placeholder="Select a form" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-[var(--color-border)] shadow-lg">
-              {formOptions.map((option) => (
-                <SelectItem 
-                  key={option.value} 
-                  value={option.value}
-                  className="cursor-pointer hover:bg-[var(--color-muted)] focus:bg-[var(--color-muted)]"
-                >
-                  <div className="flex items-center gap-2">
-                    {option.value === 'SF330' ? (
-                      <FileText className="h-4 w-4 text-[var(--color-primary)]" />
-                    ) : (
-                      <FileSignature className="h-4 w-4 text-blue-600" />
-                    )}
-                    <span className="font-medium">{option.label}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Status indicator */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 rounded-full bg-[var(--color-accent)]/10 px-3 py-1.5 text-xs font-medium text-[var(--color-accent)]">
-            <div className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)] animate-pulse" />
-            Auto-save
+        ) : (
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-[var(--color-primary)]" />
+            <span className="text-sm font-medium text-[var(--color-foreground)]">
+              {state.activeForm} Form
+            </span>
           </div>
+        )}
+      </div>
+
+      {/* Center - Search */}
+      <div className="hidden md:flex flex-1 max-w-md mx-8">
+        <div className="relative w-full">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-foreground)]" />
+          <Input
+            type="search"
+            placeholder="Search projects, forms, team..."
+            className="pl-9 bg-[var(--color-muted)] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
+          />
         </div>
+      </div>
+
+      {/* Right side - User Profile */}
+      <div className="flex items-center gap-3">
+        {/* Auto-save indicator */}
+        <div className="hidden sm:flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-600">
+          <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          Auto-saved
+        </div>
+        
+        <UserProfileDropdown />
       </div>
     </header>
   );

@@ -7,6 +7,8 @@ import type {
   UploadedAsset,
   SF330PartIData,
   SF330PartIIData,
+  SF254Data,
+  SF255Data,
   SF252Data,
   EmployeeByDiscipline,
   KeyPersonnel,
@@ -93,6 +95,54 @@ const initialSF252: SF252Data = {
   contractingOfficerDate: '',
 };
 
+const initialSF254: SF254Data = {
+  firmName: '',
+  streetAddress: '',
+  city: '',
+  state: '',
+  zipCode: '',
+  contactName: '',
+  contactTitle: '',
+  contactPhone: '',
+  contactEmail: '',
+  parentCompanyName: '',
+  parentCompanyAddress: '',
+  yearEstablished: '',
+  dateSubmitted: '',
+  totalPersonnel: 0,
+  personnelByDiscipline: [],
+  serviceCapabilities: [],
+  geographicExperience: [],
+  annualAverageRevenue: 0,
+  federalWorkPercentage: 0,
+  nonFederalWorkPercentage: 0,
+};
+
+const initialSF255: SF255Data = {
+  projectTitle: '',
+  projectLocation: '',
+  solicitationNumber: '',
+  firmName: '',
+  firmAddress: '',
+  firmCity: '',
+  firmState: '',
+  firmZipCode: '',
+  pocName: '',
+  pocTitle: '',
+  pocPhone: '',
+  pocEmail: '',
+  jointVenturePartners: [],
+  personnelByDiscipline: [],
+  outsideConsultants: [],
+  projectTeamResumes: [],
+  relevantProjects: [],
+  additionalInformation: '',
+  authorizedRepName: '',
+  authorizedRepTitle: '',
+  authorizedRepDate: '',
+  authorizedRepSignature: '',
+};
+
 // Create a default project
 const defaultProject: Project = {
   id: 'default',
@@ -110,6 +160,8 @@ const initialState: DashboardState = {
   formData: {
     sf330PartI: initialSF330PartI,
     sf330PartII: initialSF330PartII,
+    sf254: initialSF254,
+    sf255: initialSF255,
     sf252: initialSF252,
   },
   isLoading: false,
@@ -193,6 +245,24 @@ function dashboardReducer(state: DashboardState, action: DashboardAction): Dashb
         formData: {
           ...state.formData,
           sf252: { ...state.formData.sf252, ...action.payload },
+        },
+      };
+
+    case 'UPDATE_SF254':
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          sf254: { ...state.formData.sf254, ...action.payload },
+        },
+      };
+
+    case 'UPDATE_SF255':
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          sf255: { ...state.formData.sf255, ...action.payload },
         },
       };
 
@@ -379,6 +449,8 @@ interface DashboardContextType {
   // Form data actions
   updateSF330PartI: (data: Partial<SF330PartIData>) => void;
   updateSF330PartII: (data: Partial<SF330PartIIData>) => void;
+  updateSF254: (data: Partial<SF254Data>) => void;
+  updateSF255: (data: Partial<SF255Data>) => void;
   updateSF252: (data: Partial<SF252Data>) => void;
   addEmployeeByDiscipline: (employee: EmployeeByDiscipline) => void;
   removeEmployeeByDiscipline: (id: string) => void;
@@ -513,6 +585,14 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'UPDATE_SF330_PART_II', payload: data });
   }, []);
 
+  const updateSF254 = useCallback((data: Partial<SF254Data>) => {
+    dispatch({ type: 'UPDATE_SF254', payload: data });
+  }, []);
+
+  const updateSF255 = useCallback((data: Partial<SF255Data>) => {
+    dispatch({ type: 'UPDATE_SF255', payload: data });
+  }, []);
+
   const updateSF252 = useCallback((data: Partial<SF252Data>) => {
     dispatch({ type: 'UPDATE_SF252', payload: data });
   }, []);
@@ -559,6 +639,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     getProjectAssets,
     updateSF330PartI,
     updateSF330PartII,
+    updateSF254,
+    updateSF255,
     updateSF252,
     addEmployeeByDiscipline,
     removeEmployeeByDiscipline,
