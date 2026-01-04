@@ -4,6 +4,8 @@ import { SF330 } from './SF330';
 import { SF254 } from './SF254';
 import { SF255 } from './SF255';
 import { SF252 } from './SF252';
+import { FormProgressBar } from './FormProgressBar';
+import { getFormProgress } from '@/utils/formProgress';
 
 const formMeta: Record<string, { title: string; subtitle: string; icon: typeof FileText; gradient: string }> = {
   SF330: {
@@ -34,10 +36,13 @@ const formMeta: Record<string, { title: string; subtitle: string; icon: typeof F
 
 export function FormPreview() {
   const { state } = useDashboard();
-  const { activeForm, isLoading } = state;
+  const { activeForm, isLoading, formData } = state;
   
   const meta = formMeta[activeForm] || formMeta.SF330;
   const Icon = meta.icon;
+  
+  // Calculate progress for current form
+  const progress = getFormProgress(activeForm, formData);
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-[var(--color-surface)]">
@@ -60,6 +65,9 @@ export function FormPreview() {
           </div>
         )}
       </div>
+
+      {/* Progress Bar */}
+      <FormProgressBar progress={progress} formName={meta.title} />
 
       {/* Form Content */}
       <div className="flex-1 overflow-y-auto">

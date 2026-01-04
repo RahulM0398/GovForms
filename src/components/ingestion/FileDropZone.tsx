@@ -3,15 +3,22 @@ import { Loader2, CheckCircle2, AlertCircle, CloudUpload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDashboard } from '@/context/DashboardContext';
 import { useAutoFill } from '@/hooks/useAutoFill';
+import { isValidFileType, isValidFileSize, sanitizeString } from '@/utils/security';
 import type { UploadedAsset } from '@/types';
 
 interface FileDropZoneProps {
   className?: string;
 }
 
+// Allowed file types and max size
+const ALLOWED_FILE_TYPES = ['pdf', 'doc', 'docx', 'txt', 'xls', 'xlsx'];
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILES_PER_UPLOAD = 10;
+
 export function FileDropZone({ className }: FileDropZoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const { state, addAsset } = useDashboard();
   const { triggerExtraction, isExtracting } = useAutoFill();
 
@@ -27,8 +34,39 @@ export function FileDropZone({ className }: FileDropZoneProps) {
     setIsDragOver(false);
   }, []);
 
+  const validateFile = useCallback((file: File): { valid: boolean; error?: string } => {
+    // Sanitize filename to prevent XSS
+    const sanitizedName = sanitizeString(file.name);
+    if (sanitizedName !== file.name.trim()) {
+      return { valid: false, error: 'Filename contains invalid characters' };
+    }
+
+    // Check file type
+    if (!isValidFileType(file.name, ALLOWED_FILE_TYPES)) {
+      return { valid: false, error: `Invalid file type. Allowed: ${ALLOWED_FILE_TYPES.join(', ')}` };
+    }
+
+    // Check file size
+    if (!isValidFileSize(file.size, MAX_FILE_SIZE_MB)) {
+      return { valid: false, error: `File too large. Maximum size: ${MAX_FILE_SIZE_MB}MB` };
+    }
+
+    // Check for empty files
+    if (file.size === 0) {
+      return { valid: false, error: 'Cannot upload empty files' };
+    }
+
+    return { valid: true };
+  }, []);
+
   const processFile = useCallback(
     async (file: File) => {
+      // Validate file first
+      const validation = validateFile(file);
+      if (!validation.valid) {
+        throw new Error(validation.error);
+      }
+
       const fileName = file.name.toLowerCase();
       let assetType: UploadedAsset['type'] = 'other';
       
@@ -45,7 +83,7 @@ export function FileDropZone({ className }: FileDropZoneProps) {
 
       const asset: UploadedAsset = {
         id: crypto.randomUUID(),
-        name: file.name,
+        name: sanitizeString(file.name),
         type: assetType,
         size: file.size,
         uploadedAt: new Date(),
@@ -55,7 +93,7 @@ export function FileDropZone({ className }: FileDropZoneProps) {
       addAsset(asset);
       await triggerExtraction(file);
     },
-    [addAsset, triggerExtraction, state.activeProjectId]
+    [addAsset, triggerExtraction, state.activeProjectId, validateFile]
   );
 
   const handleDrop = useCallback(
@@ -64,9 +102,18 @@ export function FileDropZone({ className }: FileDropZoneProps) {
       e.stopPropagation();
       setIsDragOver(false);
       setUploadStatus('uploading');
+      setErrorMessage('');
 
       const files = Array.from(e.dataTransfer.files);
       
+      // Limit number of files per upload
+      if (files.length > MAX_FILES_PER_UPLOAD) {
+        setErrorMessage(`Too many files. Maximum ${MAX_FILES_PER_UPLOAD} files per upload.`);
+        setUploadStatus('error');
+        setTimeout(() => setUploadStatus('idle'), 3000);
+        return;
+      }
+
       try {
         for (const file of files) {
           await processFile(file);
@@ -74,6 +121,7 @@ export function FileDropZone({ className }: FileDropZoneProps) {
         setUploadStatus('success');
         setTimeout(() => setUploadStatus('idle'), 2000);
       } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Upload failed');
         setUploadStatus('error');
         setTimeout(() => setUploadStatus('idle'), 3000);
       }
@@ -87,6 +135,16 @@ export function FileDropZone({ className }: FileDropZoneProps) {
       if (!files || files.length === 0) return;
 
       setUploadStatus('uploading');
+      setErrorMessage('');
+
+      // Limit number of files per upload
+      if (files.length > MAX_FILES_PER_UPLOAD) {
+        setErrorMessage(`Too many files. Maximum ${MAX_FILES_PER_UPLOAD} files per upload.`);
+        setUploadStatus('error');
+        setTimeout(() => setUploadStatus('idle'), 3000);
+        e.target.value = '';
+        return;
+      }
 
       try {
         for (const file of Array.from(files)) {
@@ -95,6 +153,7 @@ export function FileDropZone({ className }: FileDropZoneProps) {
         setUploadStatus('success');
         setTimeout(() => setUploadStatus('idle'), 2000);
       } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Upload failed');
         setUploadStatus('error');
         setTimeout(() => setUploadStatus('idle'), 3000);
       }
@@ -125,7 +184,7 @@ export function FileDropZone({ className }: FileDropZoneProps) {
           id="file-upload"
           type="file"
           multiple
-          accept=".pdf,.doc,.docx,.txt"
+          accept=".pdf,.doc,.docx,.txt,.xls,.xlsx"
           onChange={handleFileInput}
           className="sr-only"
           disabled={isProcessing}
@@ -159,7 +218,9 @@ export function FileDropZone({ className }: FileDropZoneProps) {
               </div>
               <div>
                 <p className="text-sm font-medium text-[var(--color-destructive)]">Upload failed</p>
-                <p className="text-xs text-[var(--color-muted-foreground)]">Please try again</p>
+                <p className="text-xs text-[var(--color-muted-foreground)]">
+                  {errorMessage || 'Please try again'}
+                </p>
               </div>
             </>
           ) : (
@@ -172,7 +233,7 @@ export function FileDropZone({ className }: FileDropZoneProps) {
                   Drop files or <span className="text-[var(--color-primary)]">browse</span>
                 </p>
                 <p className="text-xs text-[var(--color-muted-foreground)] mt-1">
-                  PDF, DOC, DOCX, TXT
+                  PDF, DOC, DOCX, TXT, XLS, XLSX (max {MAX_FILE_SIZE_MB}MB)
                 </p>
               </div>
             </>

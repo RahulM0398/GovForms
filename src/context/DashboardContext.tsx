@@ -496,6 +496,23 @@ function loadPersistedState(): DashboardState | null {
           projectId: asset.projectId || parsed.activeProjectId || 'default',
         }));
       }
+      // Ensure all form data sections exist (for backwards compatibility)
+      if (!parsed.formData) {
+        parsed.formData = initialState.formData;
+      } else {
+        // Merge with initial state to ensure all form types exist
+        parsed.formData = {
+          sf330PartI: { ...initialSF330PartI, ...(parsed.formData.sf330PartI || {}) },
+          sf330PartII: { ...initialSF330PartII, ...(parsed.formData.sf330PartII || {}) },
+          sf254: { ...initialSF254, ...(parsed.formData.sf254 || {}) },
+          sf255: { ...initialSF255, ...(parsed.formData.sf255 || {}) },
+          sf252: { ...initialSF252, ...(parsed.formData.sf252 || {}) },
+        };
+      }
+      // Handle old activeForm types
+      if (parsed.activeForm === 'SF330_PART_I' || parsed.activeForm === 'SF330_PART_II') {
+        parsed.activeForm = 'SF330';
+      }
       return parsed;
     }
   } catch (error) {
