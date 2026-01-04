@@ -7,8 +7,10 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
+  Upload,
 } from 'lucide-react';
 import { useDashboard } from '@/context/DashboardContext';
+import { useNavigation } from '@/context/NavigationContext';
 
 interface StatCardProps {
   title: string;
@@ -17,11 +19,15 @@ interface StatCardProps {
   trend?: string;
   trendUp?: boolean;
   color: string;
+  onClick?: () => void;
 }
 
-function StatCard({ title, value, icon, trend, trendUp, color }: StatCardProps) {
+function StatCard({ title, value, icon, trend, trendUp, color, onClick }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-[var(--color-border)] bg-white p-5 shadow-sm">
+    <div 
+      className={`rounded-xl border border-[var(--color-border)] bg-white p-5 shadow-sm transition-all ${onClick ? 'cursor-pointer hover:shadow-md hover:border-[var(--color-primary)]/50' : ''}`}
+      onClick={onClick}
+    >
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm text-[var(--color-muted-foreground)]">{title}</p>
@@ -46,11 +52,15 @@ interface RecentActivityProps {
   description: string;
   time: string;
   iconBg: string;
+  onClick?: () => void;
 }
 
-function RecentActivity({ icon, title, description, time, iconBg }: RecentActivityProps) {
+function RecentActivity({ icon, title, description, time, iconBg, onClick }: RecentActivityProps) {
   return (
-    <div className="flex items-start gap-3 rounded-lg p-3 hover:bg-[var(--color-muted)] transition-colors">
+    <div 
+      className={`flex items-start gap-3 rounded-lg p-3 hover:bg-[var(--color-muted)] transition-colors ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={onClick}
+    >
       <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${iconBg}`}>
         {icon}
       </div>
@@ -64,7 +74,30 @@ function RecentActivity({ icon, title, description, time, iconBg }: RecentActivi
 }
 
 export function DashboardView() {
-  const { state } = useDashboard();
+  const { state, setActiveForm } = useDashboard();
+  const { navigateToProjects, navigateToTeam, setActiveSection } = useNavigation();
+
+  const handleNewSF330 = () => {
+    setActiveForm('SF330');
+    setActiveSection('forms');
+  };
+
+  const handleNewProject = () => {
+    navigateToProjects();
+  };
+
+  const handleAddMember = () => {
+    navigateToTeam();
+  };
+
+  const handleUploadDocs = () => {
+    setActiveSection('forms');
+  };
+
+  const handleViewAllActivity = () => {
+    // Could navigate to an activity log in the future
+    navigateToProjects();
+  };
 
   return (
     <div className="h-full overflow-y-auto p-6">
@@ -86,6 +119,7 @@ export function DashboardView() {
             trend="+2 this month"
             trendUp={true}
             color="bg-violet-100"
+            onClick={navigateToProjects}
           />
           <StatCard
             title="Forms Completed"
@@ -94,18 +128,21 @@ export function DashboardView() {
             trend="+5 this week"
             trendUp={true}
             color="bg-blue-100"
+            onClick={() => setActiveSection('forms')}
           />
           <StatCard
             title="Team Members"
             value={8}
             icon={<Users className="h-5 w-5 text-emerald-600" />}
             color="bg-emerald-100"
+            onClick={navigateToTeam}
           />
           <StatCard
             title="Uploaded Documents"
             value={state.uploadedAssets.length}
             icon={<Building2 className="h-5 w-5 text-amber-600" />}
             color="bg-amber-100"
+            onClick={() => setActiveSection('forms')}
           />
         </div>
 
@@ -117,7 +154,10 @@ export function DashboardView() {
                 <Clock className="h-4 w-4 text-[var(--color-muted-foreground)]" />
                 <h3 className="font-semibold text-[var(--color-foreground)]">Recent Activity</h3>
               </div>
-              <button className="text-xs font-medium text-[var(--color-primary)] hover:underline">
+              <button 
+                className="text-xs font-medium text-[var(--color-primary)] hover:underline"
+                onClick={handleViewAllActivity}
+              >
                 View all
               </button>
             </div>
@@ -128,6 +168,7 @@ export function DashboardView() {
                 description="Contract-specific qualifications form"
                 time="2 min ago"
                 iconBg="bg-violet-100"
+                onClick={() => { setActiveForm('SF330'); setActiveSection('forms'); }}
               />
               <RecentActivity
                 icon={<CheckCircle2 className="h-4 w-4 text-emerald-600" />}
@@ -135,6 +176,7 @@ export function DashboardView() {
                 description="Federal Reserve Bank Modernization"
                 time="1 hour ago"
                 iconBg="bg-emerald-100"
+                onClick={navigateToProjects}
               />
               <RecentActivity
                 icon={<Users className="h-4 w-4 text-blue-600" />}
@@ -142,6 +184,7 @@ export function DashboardView() {
                 description="Dr. Sarah Mitchell joined"
                 time="3 hours ago"
                 iconBg="bg-blue-100"
+                onClick={navigateToTeam}
               />
               <RecentActivity
                 icon={<AlertCircle className="h-4 w-4 text-amber-600" />}
@@ -149,6 +192,7 @@ export function DashboardView() {
                 description="SF254 submission deadline in 3 days"
                 time="Yesterday"
                 iconBg="bg-amber-100"
+                onClick={() => { setActiveForm('SF254'); setActiveSection('forms'); }}
               />
             </div>
           </div>
@@ -162,20 +206,32 @@ export function DashboardView() {
               </div>
             </div>
             <div className="p-4 grid grid-cols-2 gap-3">
-              <button className="flex flex-col items-center justify-center rounded-lg border border-[var(--color-border)] p-4 hover:bg-[var(--color-muted)] hover:border-[var(--color-primary)] transition-colors">
+              <button 
+                className="flex flex-col items-center justify-center rounded-lg border border-[var(--color-border)] p-4 hover:bg-[var(--color-muted)] hover:border-[var(--color-primary)] transition-colors"
+                onClick={handleNewSF330}
+              >
                 <FileText className="h-6 w-6 text-violet-600" />
                 <span className="mt-2 text-sm font-medium text-[var(--color-foreground)]">New SF330</span>
               </button>
-              <button className="flex flex-col items-center justify-center rounded-lg border border-[var(--color-border)] p-4 hover:bg-[var(--color-muted)] hover:border-[var(--color-primary)] transition-colors">
+              <button 
+                className="flex flex-col items-center justify-center rounded-lg border border-[var(--color-border)] p-4 hover:bg-[var(--color-muted)] hover:border-[var(--color-primary)] transition-colors"
+                onClick={handleNewProject}
+              >
                 <FolderKanban className="h-6 w-6 text-blue-600" />
                 <span className="mt-2 text-sm font-medium text-[var(--color-foreground)]">New Project</span>
               </button>
-              <button className="flex flex-col items-center justify-center rounded-lg border border-[var(--color-border)] p-4 hover:bg-[var(--color-muted)] hover:border-[var(--color-primary)] transition-colors">
+              <button 
+                className="flex flex-col items-center justify-center rounded-lg border border-[var(--color-border)] p-4 hover:bg-[var(--color-muted)] hover:border-[var(--color-primary)] transition-colors"
+                onClick={handleAddMember}
+              >
                 <Users className="h-6 w-6 text-emerald-600" />
                 <span className="mt-2 text-sm font-medium text-[var(--color-foreground)]">Add Member</span>
               </button>
-              <button className="flex flex-col items-center justify-center rounded-lg border border-[var(--color-border)] p-4 hover:bg-[var(--color-muted)] hover:border-[var(--color-primary)] transition-colors">
-                <Building2 className="h-6 w-6 text-amber-600" />
+              <button 
+                className="flex flex-col items-center justify-center rounded-lg border border-[var(--color-border)] p-4 hover:bg-[var(--color-muted)] hover:border-[var(--color-primary)] transition-colors"
+                onClick={handleUploadDocs}
+              >
+                <Upload className="h-6 w-6 text-amber-600" />
                 <span className="mt-2 text-sm font-medium text-[var(--color-foreground)]">Upload Docs</span>
               </button>
             </div>
@@ -185,4 +241,3 @@ export function DashboardView() {
     </div>
   );
 }
-

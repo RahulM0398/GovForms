@@ -8,9 +8,14 @@ import {
   Award,
   MoreVertical,
   UserPlus,
+  X,
+  Trash2,
+  Edit,
+  FileText,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,8 +23,20 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-// Mock team data - in a real app, this would come from context/API
-const mockTeamMembers = [
+interface TeamMember {
+  id: string;
+  name: string;
+  title: string;
+  email: string;
+  phone: string;
+  department: string;
+  yearsExperience: number;
+  certifications: string[];
+  avatar: string | null;
+}
+
+// Initial team data
+const initialTeamMembers: TeamMember[] = [
   {
     id: '1',
     name: 'Dr. Sarah Mitchell',
@@ -69,10 +86,22 @@ const mockTeamMembers = [
 const departments = ['All', 'Architecture', 'Engineering', 'Management', 'Administrative'];
 
 export function TeamView() {
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(initialTeamMembers);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('All');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const [newMember, setNewMember] = useState<Partial<TeamMember>>({
+    name: '',
+    title: '',
+    email: '',
+    phone: '',
+    department: 'Architecture',
+    yearsExperience: 0,
+    certifications: [],
+  });
 
-  const filteredMembers = mockTeamMembers.filter((member) => {
+  const filteredMembers = teamMembers.filter((member) => {
     const matchesSearch =
       member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       member.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -103,6 +132,50 @@ export function TeamView() {
     }
   };
 
+  const handleAddMember = () => {
+    if (newMember.name && newMember.email) {
+      const member: TeamMember = {
+        id: crypto.randomUUID(),
+        name: newMember.name || '',
+        title: newMember.title || '',
+        email: newMember.email || '',
+        phone: newMember.phone || '',
+        department: newMember.department || 'Architecture',
+        yearsExperience: newMember.yearsExperience || 0,
+        certifications: newMember.certifications || [],
+        avatar: null,
+      };
+      setTeamMembers([...teamMembers, member]);
+      setNewMember({
+        name: '',
+        title: '',
+        email: '',
+        phone: '',
+        department: 'Architecture',
+        yearsExperience: 0,
+        certifications: [],
+      });
+      setShowAddModal(false);
+    }
+  };
+
+  const handleUpdateMember = () => {
+    if (editingMember) {
+      setTeamMembers(teamMembers.map((m) => 
+        m.id === editingMember.id ? editingMember : m
+      ));
+      setEditingMember(null);
+    }
+  };
+
+  const handleRemoveMember = (id: string) => {
+    setTeamMembers(teamMembers.filter((m) => m.id !== id));
+  };
+
+  const handleViewResume = (member: TeamMember) => {
+    alert(`Viewing resume for ${member.name}\n\nTitle: ${member.title}\nDepartment: ${member.department}\nExperience: ${member.yearsExperience} years\nCertifications: ${member.certifications.join(', ')}`);
+  };
+
   return (
     <div className="h-full overflow-y-auto p-6">
       <div className="max-w-6xl mx-auto">
@@ -111,10 +184,13 @@ export function TeamView() {
           <div>
             <h1 className="text-xl font-bold text-[var(--color-foreground)]">Team Members</h1>
             <p className="text-sm text-[var(--color-muted-foreground)]">
-              {mockTeamMembers.length} employees
+              {teamMembers.length} employees
             </p>
           </div>
-          <Button className="bg-[var(--color-primary)] hover:bg-[var(--color-primary)]/90">
+          <Button 
+            className="bg-[var(--color-primary)] hover:bg-[var(--color-primary)]/90"
+            onClick={() => setShowAddModal(true)}
+          >
             <UserPlus className="mr-2 h-4 w-4" />
             Add Member
           </Button>
@@ -132,7 +208,7 @@ export function TeamView() {
               className="pl-9 bg-white border-[var(--color-border)]"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {departments.map((dept) => (
               <Button
                 key={dept}
@@ -150,6 +226,132 @@ export function TeamView() {
             ))}
           </div>
         </div>
+
+        {/* Add/Edit Modal */}
+        {(showAddModal || editingMember) && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
+                  {editingMember ? 'Edit Team Member' : 'Add New Team Member'}
+                </h2>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setEditingMember(null);
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Name *</Label>
+                    <Input
+                      value={editingMember?.name || newMember.name || ''}
+                      onChange={(e) => editingMember 
+                        ? setEditingMember({...editingMember, name: e.target.value})
+                        : setNewMember({...newMember, name: e.target.value})
+                      }
+                      placeholder="Full name"
+                      className="bg-white border-[var(--color-border)]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Title</Label>
+                    <Input
+                      value={editingMember?.title || newMember.title || ''}
+                      onChange={(e) => editingMember 
+                        ? setEditingMember({...editingMember, title: e.target.value})
+                        : setNewMember({...newMember, title: e.target.value})
+                      }
+                      placeholder="Job title"
+                      className="bg-white border-[var(--color-border)]"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Email *</Label>
+                    <Input
+                      type="email"
+                      value={editingMember?.email || newMember.email || ''}
+                      onChange={(e) => editingMember 
+                        ? setEditingMember({...editingMember, email: e.target.value})
+                        : setNewMember({...newMember, email: e.target.value})
+                      }
+                      placeholder="email@example.com"
+                      className="bg-white border-[var(--color-border)]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Phone</Label>
+                    <Input
+                      type="tel"
+                      value={editingMember?.phone || newMember.phone || ''}
+                      onChange={(e) => editingMember 
+                        ? setEditingMember({...editingMember, phone: e.target.value})
+                        : setNewMember({...newMember, phone: e.target.value})
+                      }
+                      placeholder="(555) 555-5555"
+                      className="bg-white border-[var(--color-border)]"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Department</Label>
+                    <select
+                      value={editingMember?.department || newMember.department || 'Architecture'}
+                      onChange={(e) => editingMember 
+                        ? setEditingMember({...editingMember, department: e.target.value})
+                        : setNewMember({...newMember, department: e.target.value})
+                      }
+                      className="w-full h-9 rounded-md border border-[var(--color-border)] bg-white px-3 text-sm"
+                    >
+                      {departments.filter(d => d !== 'All').map((dept) => (
+                        <option key={dept} value={dept}>{dept}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Years Experience</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={editingMember?.yearsExperience || newMember.yearsExperience || 0}
+                      onChange={(e) => editingMember 
+                        ? setEditingMember({...editingMember, yearsExperience: parseInt(e.target.value) || 0})
+                        : setNewMember({...newMember, yearsExperience: parseInt(e.target.value) || 0})
+                      }
+                      className="bg-white border-[var(--color-border)]"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setEditingMember(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  className="bg-[var(--color-primary)]"
+                  onClick={editingMember ? handleUpdateMember : handleAddMember}
+                >
+                  {editingMember ? 'Save Changes' : 'Add Member'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Team Grid */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -170,9 +372,27 @@ export function TeamView() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-white">
-                  <DropdownMenuItem className="cursor-pointer">Edit Profile</DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">View Resume</DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer text-red-600">Remove</DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => setEditingMember(member)}
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => handleViewResume(member)}
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    View Resume
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer text-red-600"
+                    onClick={() => handleRemoveMember(member.id)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Remove
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -250,10 +470,17 @@ export function TeamView() {
             <p className="mt-4 text-sm font-medium text-[var(--color-muted-foreground)]">
               No team members found
             </p>
+            <Button 
+              variant="ghost" 
+              className="mt-2 text-[var(--color-primary)]"
+              onClick={() => setShowAddModal(true)}
+            >
+              <UserPlus className="mr-1 h-4 w-4" />
+              Add your first team member
+            </Button>
           </div>
         )}
       </div>
     </div>
   );
 }
-

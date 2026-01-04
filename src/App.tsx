@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { DashboardProvider } from '@/context/DashboardContext';
+import { NavigationProvider, useNavigation } from '@/context/NavigationContext';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { TopNav } from '@/components/layout/TopNav';
 import { SplitPane } from '@/components/layout/SplitPane';
@@ -10,8 +10,7 @@ import { ProjectsView } from '@/components/views/ProjectsView';
 import { TeamView } from '@/components/views/TeamView';
 import { FirmsView } from '@/components/views/FirmsView';
 import { SettingsView } from '@/components/views/SettingsView';
-
-type NavSection = 'dashboard' | 'projects' | 'forms' | 'team' | 'firms' | 'settings';
+import type { NavSection } from '@/context/NavigationContext';
 
 const sectionTitles: Record<NavSection, { title: string; subtitle: string }> = {
   dashboard: { title: 'Dashboard', subtitle: 'Overview of your activity' },
@@ -23,7 +22,7 @@ const sectionTitles: Record<NavSection, { title: string; subtitle: string }> = {
 };
 
 function MainLayout() {
-  const [activeSection, setActiveSection] = useState<NavSection>('forms');
+  const { activeSection, setActiveSection } = useNavigation();
 
   const renderContent = () => {
     switch (activeSection) {
@@ -71,7 +70,9 @@ function MainLayout() {
 function App() {
   return (
     <DashboardProvider>
-      <MainLayout />
+      <NavigationProvider>
+        <MainLayout />
+      </NavigationProvider>
     </DashboardProvider>
   );
 }
