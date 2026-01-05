@@ -11,8 +11,6 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.x-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 [![Vite](https://img.shields.io/badge/Vite-7.x-646CFF?style=flat-square&logo=vite)](https://vitejs.dev/)
 
-[Live Demo](https://govforms.vercel.app) · [Report Bug](https://github.com/RahulM0398/GovForms/issues) · [Request Feature](https://github.com/RahulM0398/GovForms/issues)
-
 </div>
 
 ---
