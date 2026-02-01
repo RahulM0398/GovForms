@@ -1,8 +1,8 @@
-# VForms - Document Intelligence Dashboard
+# GovForms - Document Intelligence Dashboard
 
 <div align="center">
 
-![VForms Logo](https://img.shields.io/badge/VForms-Document%20Intelligence-6366f1?style=for-the-badge&logo=files&logoColor=white)
+![GovForms Logo](https://img.shields.io/badge/GovForms-Document%20Intelligence-6366f1?style=for-the-badge&logo=files&logoColor=white)
 
 **Streamline Federal A-E Qualification Forms with AI-Powered Document Intelligence**
 
@@ -17,9 +17,9 @@
 
 ## 📋 Overview
 
-**VForms** is a modern web application designed to simplify the process of completing federal Architect-Engineer (A-E) qualification forms. It provides an intuitive interface for managing, filling, and exporting government forms required for A-E contract submissions.
+**GovForms** is a modern web application designed to simplify the process of completing federal Architect-Engineer (A-E) qualification forms. It provides an intuitive interface for managing, filling, and exporting government forms required for A-E contract submissions.
 
-Whether you're a small architecture firm or a large engineering company, VForms helps you:
+Whether you're a small architecture firm or a large engineering company, GovForms helps you:
 - 📄 **Organize** your qualification documents in one place
 - ✨ **Auto-fill** forms using intelligent document extraction
 - 📊 **Track progress** on form completion
@@ -30,7 +30,7 @@ Whether you're a small architecture firm or a large engineering company, VForms 
 ## ✨ Features
 
 ### 🗂️ Multi-Form Support
-VForms supports all major federal A-E qualification forms:
+GovForms supports all major federal A-E qualification forms:
 
 | Form | Description | Use Case |
 |------|-------------|----------|
@@ -87,47 +87,6 @@ VForms supports all major federal A-E qualification forms:
 - Organization settings
 - Security preferences
 - Billing information
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **Node.js** 18.x or higher
-- **npm** 9.x or higher (or yarn/pnpm)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/RahulM0398/GovForms.git
-   cd GovForms
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Start development server**
-   ```bash
-   npm run dev
-   ```
-
-4. **Open in browser**
-   ```
-   http://localhost:5173
-   ```
-
-### Build for Production
-
-```bash
-npm run build
-```
-
-The production build will be generated in the `dist/` folder.
-
 ---
 
 ## 📖 Usage Guide
@@ -169,56 +128,6 @@ The production build will be generated in the `dist/` folder.
 4. Employee data can be used across forms
 
 ---
-
-## 🏗️ Project Structure
-
-```
-VForms1/
-├── src/
-│   ├── components/
-│   │   ├── forms/           # Form components (SF330, SF254, SF255, SF252)
-│   │   ├── ingestion/       # Document upload components
-│   │   ├── layout/          # Layout components (Sidebar, TopNav)
-│   │   ├── project/         # Project management components
-│   │   ├── ui/              # Reusable UI components (shadcn/ui)
-│   │   └── views/           # Page view components
-│   ├── context/
-│   │   ├── DashboardContext.tsx    # Global state management
-│   │   └── NavigationContext.tsx   # Navigation state
-│   ├── hooks/
-│   │   └── useAutoFill.ts   # Auto-fill logic hook
-│   ├── types/
-│   │   └── index.ts         # TypeScript type definitions
-│   ├── utils/
-│   │   ├── formProgress.ts  # Form progress calculation
-│   │   ├── pdfExport.ts     # PDF generation utilities
-│   │   └── security.ts      # Input validation & sanitization
-│   ├── App.tsx              # Main application component
-│   ├── main.tsx             # Application entry point
-│   └── index.css            # Global styles
-├── public/                   # Static assets
-├── package.json
-├── tailwind.config.js
-├── tsconfig.json
-└── vite.config.ts
-```
-
----
-
-## 🛠️ Technology Stack
-
-| Category | Technology |
-|----------|------------|
-| **Framework** | React 18 with TypeScript |
-| **Build Tool** | Vite 7 |
-| **Styling** | Tailwind CSS 4 |
-| **UI Components** | shadcn/ui + Radix UI |
-| **Icons** | Lucide React |
-| **PDF Generation** | pdf-lib |
-| **State Management** | React Context + useReducer |
-| **Persistence** | localStorage |
-| **Validation** | Zod |
-
 ---
 
 ## 📝 Supported Form Fields
